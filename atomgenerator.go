@@ -16,8 +16,8 @@
 // This code is under BSD license. See license-bsd.txt.
 //
 // Authors:
-//   Krzysztof Kowalczyk <kkowalczyk@gmail.com>
-//   Thomas Kappler <tkappler@gmail.com>
+//   Krzysztof Kowalczyk, http://blog.kowalczyk.info/
+//   Thomas Kappler, http://www.thomaskappler.net/
 package atomgenerator
 
 import (
@@ -39,7 +39,6 @@ type Feed struct {
 	Title string
 	// Required.
 	PubDate time.Time
-	Author  string
 	Link    string
 	// Required unless all entries have at least one Author.
 	Authors []Author
