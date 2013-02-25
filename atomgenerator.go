@@ -3,12 +3,12 @@
 // The package is based on an implementation from Krzysztof Kowalczyk's
 // https://github.com/kjk/apptranslator, with some modifications:
 //
-//  - Generate entry ids based on a scheme described on diveintomark.org,
-//    see `(e Entry) genId()`.
-//  - Added <author>s to Feed and Entry.
-//  - Added <content> field to Entry.
-//  - Validate() to check whether the Feed conforms to Atom.
-//  - Godoc.
+// - Generate entry ids based on a scheme described on diveintomark.org,
+//   see `(e Entry) genId()`.
+// - Added <author>s to Feed and Entry.
+// - Added <content> field to Entry.
+// - Validate() to check whether the Feed conforms to Atom.
+// - Godoc.
 //
 // http://www.atomenabled.org/developers/syndication and RFC 4287 were
 // used as a references.
@@ -16,8 +16,8 @@
 // This code is under BSD license. See license-bsd.txt.
 //
 // Authors:
-//   Krzysztof Kowalczyk, http://blog.kowalczyk.info/
-//   Thomas Kappler, http://www.thomaskappler.net/
+// - Krzysztof Kowalczyk, http://blog.kowalczyk.info/
+// - Thomas Kappler, http://www.thomaskappler.net/
 package atomgenerator
 
 import (

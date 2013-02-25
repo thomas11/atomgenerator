@@ -6,3 +6,8 @@ For documentation please see
 [godoc.org](http://godoc.org/github.com/thomas11/atomgenerator).
 
 Licensed under the BSD license, see license-bsd.txt.
+
+Authors:
+
+ - Krzysztof Kowalczyk, http://blog.kowalczyk.info/
+ - Thomas Kappler, http://www.thomaskappler.net/
