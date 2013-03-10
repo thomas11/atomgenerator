@@ -41,12 +41,16 @@ type Feed struct {
 	PubDate time.Time
 	Link    string
 	// Required unless all entries have at least one Author.
-	Authors []Author
+	authors []Author
 	entries []*Entry
 }
 
 func (f *Feed) AddEntry(e *Entry) {
 	f.entries = append(f.entries, e)
+}
+
+func (f *Feed) AddAuthor(author Author) {
+	f.authors = append(f.authors, author)
 }
 
 type Author struct {
@@ -58,6 +62,13 @@ type Author struct {
 	Uri string `xml:"uri,omitempty"`
 }
 
+type Category struct {
+	// Required
+	Term   string `xml:"term,attr"`
+	Scheme string `xml:"scheme,attr,omitempty"`
+	Label  string `xml:"label,attr,omitempty"`
+}
+
 type Entry struct {
 	// Required.
 	Title string
@@ -67,7 +78,16 @@ type Entry struct {
 	Description string
 	Content     string
 	// Required unless the Feed has at least one Author.
-	Authors []Author
+	authors    []Author
+	categories []Category
+}
+
+func (e *Entry) AddAuthor(author Author) {
+	e.authors = append(e.authors, author)
+}
+
+func (e *Entry) AddCategory(cat Category) {
+	e.categories = append(e.categories, cat)
 }
 
 type typedTag struct {
@@ -76,14 +96,15 @@ type typedTag struct {
 }
 
 type entryXml struct {
-	XMLName xml.Name `xml:"entry"`
-	Title   string   `xml:"title"`
-	Link    *linkXml
-	Updated string    `xml:"updated"`
-	Id      string    `xml:"id"`
-	Summary *typedTag `xml:"summary"`
-	Content *typedTag `xml:"content"`
-	Authors []Author
+	XMLName    xml.Name `xml:"entry"`
+	Title      string   `xml:"title"`
+	Link       *linkXml
+	Updated    string    `xml:"updated"`
+	Id         string    `xml:"id"`
+	Summary    *typedTag `xml:"summary"`
+	Content    *typedTag `xml:"content"`
+	Authors    []Author
+	Categories []Category `xml:"category,omitempty"`
 }
 
 type linkXml struct {
@@ -130,10 +151,12 @@ func (e *Entry) genId() string {
 
 func newEntryXml(e *Entry) *entryXml {
 	x := &entryXml{
-		Id:      e.genId(),
-		Title:   e.Title,
-		Link:    &linkXml{Href: e.Link, Rel: "alternate"},
-		Updated: e.PubDate.Format(time.RFC3339)}
+		Id:         e.genId(),
+		Title:      e.Title,
+		Link:       &linkXml{Href: e.Link, Rel: "alternate"},
+		Updated:    e.PubDate.Format(time.RFC3339),
+		Categories: e.categories,
+	}
 
 	if len(e.Description) > 0 {
 		x.Summary = &typedTag{e.Description, "html"}
@@ -150,7 +173,7 @@ func (f *Feed) GenXml() ([]byte, error) {
 	feed := &feedXml{
 		Ns:      ns,
 		Title:   f.Title,
-		Authors: f.Authors,
+		Authors: f.authors,
 		Link:    &linkXml{Href: f.Link, Rel: "alternate"},
 		Id:      f.Link,
 		Updated: f.PubDate.Format(time.RFC3339)}
@@ -180,16 +203,16 @@ func (f *Feed) Validate() []error {
 	}
 
 	// Either the feed has an author, or all entries must have one.
-	if len(f.Authors) == 0 {
+	if len(f.authors) == 0 {
 		for _, e := range f.entries {
-			if len(e.Authors) == 0 {
+			if len(e.authors) == 0 {
 				errs = append(errs, fmt.Errorf(
 					"Feed has no authors, and entry %v has none either.", e.Title))
 			}
 		}
 	} else {
 		// All authors must have a name.
-		for i, author := range f.Authors {
+		for i, author := range f.authors {
 			if len(author.Name) == 0 {
 				errs = append(errs, fmt.Errorf(
 					"Feed author %v must have a Name.", i))
@@ -204,6 +227,15 @@ func (f *Feed) Validate() []error {
 		}
 		if e.PubDate.IsZero() {
 			errs = append(errs, fmt.Errorf("Entry %v must have a PubDate.", i))
+		}
+	}
+
+	// Entry categories must have the term attribute.
+	for i, e := range f.entries {
+		for j, cat := range e.categories {
+			if len(cat.Term) == 0 {
+				errs = append(errs, fmt.Errorf("Category %v of entry %v must have a Term.", j, i))
+			}
 		}
 	}
 

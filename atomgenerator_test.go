@@ -14,7 +14,7 @@ func TestFullXmlFeed(t *testing.T) {
 		Title:   "title",
 		PubDate: pubDate,
 		Link:    "http://www.myblog.bogus",
-		Authors: []Author{
+		authors: []Author{
 			Author{
 				Name:  "author name",
 				Email: "author email",
@@ -24,13 +24,16 @@ func TestFullXmlFeed(t *testing.T) {
 	}
 
 	entryPubDate, _ := time.Parse("2006-01-02 15:04", "2009-10-11 12:13")
-	f.AddEntry(&Entry{
+	entry := &Entry{
 		Title:       "entry title",
 		PubDate:     entryPubDate,
 		Link:        "http://www.myblog.bogus/entry",
 		Description: "entry description",
 		Content:     "<p>entry content</p>",
-	})
+	}
+	entry.AddCategory(Category{Term: "entry category 1"})
+	entry.AddCategory(Category{Term: "entry category 2"})
+	f.AddEntry(entry)
 
 	atom, err := f.GenXml()
 	if err != nil {
@@ -54,6 +57,8 @@ func TestFullXmlFeed(t *testing.T) {
 		   <id>tag:www.myblog.bogus,2009-10-11:/entry</id>
 		   <summary type="html">entry description</summary>
 		   <content type="html">&lt;p&gt;entry content&lt;/p&gt;</content>
+		   <category term="entry category 1"></category>
+		   <category term="entry category 2"></category>
 		  </entry>
 		 </feed>`)
 
@@ -99,13 +104,23 @@ func TestValidation(t *testing.T) {
 		t.Error("Expected an error for lack of author.")
 	}
 
-	f.Authors = append(f.Authors, Author{Name: "name"})
+	f.AddAuthor(Author{Name: "name"})
 	if errs := f.Validate(); len(errs) != 0 {
 		t.Error("Expected no errors for complete feed.")
 	}
 
-	f.Authors = append(f.Authors, Author{Email: "email"})
+	f.AddAuthor(Author{Email: "email"})
 	if errs := f.Validate(); len(errs) != 1 {
 		t.Error("Expected an error for entry Author without Name.")
+	}
+
+	f.authors[1].Name = "foo"
+	if errs := f.Validate(); len(errs) != 0 {
+		t.Error("Expected no errors after fixing second author's name.")
+	}
+
+	e.AddCategory(Category{Scheme: "foo"})
+	if errs := f.Validate(); len(errs) != 1 {
+		t.Error("Expected an error for lack of Term in category.")
 	}
 }
