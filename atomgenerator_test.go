@@ -30,6 +30,13 @@ func TestFullXmlFeed(t *testing.T) {
 		Link:        "http://www.myblog.bogus/entry",
 		Description: "entry description",
 		Content:     "<p>entry content</p>",
+		authors: []Author{
+			Author{
+				Name:  "entry author name",
+				Email: "entry author email",
+				Uri:   "entry author uri",
+			},
+		},
 	}
 	entry.AddCategory(Category{Term: "entry category 1"})
 	entry.AddCategory(Category{Term: "entry category 2"})
@@ -57,6 +64,11 @@ func TestFullXmlFeed(t *testing.T) {
 		   <id>tag:www.myblog.bogus,2009-10-11:/entry</id>
 		   <summary type="html">entry description</summary>
 		   <content type="html">&lt;p&gt;entry content&lt;/p&gt;</content>
+		   <author>
+		    <name>entry author name</name>
+		    <email>entry author email</email>
+		    <uri>entry author uri</uri>
+		   </author>
 		   <category term="entry category 1"></category>
 		   <category term="entry category 2"></category>
 		  </entry>
@@ -64,7 +76,7 @@ func TestFullXmlFeed(t *testing.T) {
 
 	whitespace := regexp.MustCompile(`\s+`)
 	noWs := func(b []byte) []byte {
-		return whitespace.ReplaceAll(atom, []byte(" "))
+		return whitespace.ReplaceAll(b, []byte(" "))
 	}
 
 	if !bytes.Equal(noWs(atom), noWs(expected)) {

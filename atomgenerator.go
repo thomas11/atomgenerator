@@ -99,11 +99,11 @@ type entryXml struct {
 	XMLName    xml.Name `xml:"entry"`
 	Title      string   `xml:"title"`
 	Link       *linkXml
-	Updated    string    `xml:"updated"`
-	Id         string    `xml:"id"`
-	Summary    *typedTag `xml:"summary"`
-	Content    *typedTag `xml:"content"`
-	Authors    []Author
+	Updated    string     `xml:"updated"`
+	Id         string     `xml:"id"`
+	Summary    *typedTag  `xml:"summary"`
+	Content    *typedTag  `xml:"content"`
+	Authors    []Author   `xml:"author"`
 	Categories []Category `xml:"category,omitempty"`
 }
 
@@ -156,6 +156,7 @@ func newEntryXml(e *Entry) *entryXml {
 		Link:       &linkXml{Href: e.Link, Rel: "alternate"},
 		Updated:    e.PubDate.Format(time.RFC3339),
 		Categories: e.categories,
+		Authors:    e.authors,
 	}
 
 	if len(e.Description) > 0 {
