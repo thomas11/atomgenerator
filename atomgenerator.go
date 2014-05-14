@@ -143,7 +143,7 @@ func (e *Entry) genId() string {
 		if !strings.HasSuffix(u.Path, "/") {
 			b.WriteString("/")
 		}
-		b.WriteString(u.Fragment)
+		b.WriteString(strings.Replace(u.Fragment, "#", "/", -1))
 	}
 
 	return b.String()
